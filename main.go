@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"go_rest_api/handler"
 	"net/http"
 	"os"
 )
@@ -11,10 +11,9 @@ func main() {
 	server := http.Server {
 		Addr: address,
 	}
-	http.HandleFunc("/hoge", hoge)
-	server.ListenAndServe()
-}
 
-func hoge(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hoge")
+	http.HandleFunc("/posts", handler.GetPost) // ById から先に判断させる
+	http.HandleFunc("/posts", handler.GetPosts)
+
+	server.ListenAndServe()
 }
