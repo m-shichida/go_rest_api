@@ -3,29 +3,29 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"go_rest_api/seed"
+	"go_rest_api/model"
+	"log"
 	"net/http"
 )
 
-func GetPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	if r.Method != "GET" {
-		w.WriteHeader(http.StatusNotFound)
-	}
-
-	// TODO: DB から取ってくる
-}
-
-func GetPosts(w http.ResponseWriter, r *http.Request) {
+func GetFishes(w http.ResponseWriter, r *http.Request) {
+	var fish model.Fish
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	fishes, err := fish.Index()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Fatal(err)
+		return
+	}
+
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(seed.Posts); err != nil {
+	if err := enc.Encode(fishes); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
