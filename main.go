@@ -17,6 +17,7 @@ func main() {
 	}
 
 	http.HandleFunc("/fishes", handler.GetFishes)
+	http.HandleFunc("/fishes/", handler.GetFishById)
 
 	server.ListenAndServe()
 }

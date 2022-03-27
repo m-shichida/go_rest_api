@@ -27,3 +27,9 @@ func (fish *Fish) Index() (fishes []Fish, err error) {
 	rows.Close()
 	return
 }
+
+func (fish *Fish) GetById(id int) (err error) {
+  err =
+		Db.QueryRow("SELECT id, name, created_at, updated_at FROM fishes WHERE id = ?", id).Scan(&fish.Id, &fish.Name, &fish.CreatedAt, &fish.UpdatedAt)
+	return
+}
