@@ -11,7 +11,6 @@ import (
 )
 
 func GetFishes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var fish model.Fish
 
 	fishes, err := fish.Index()
@@ -20,23 +19,11 @@ func GetFishes(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 		return
 	}
-
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(fishes); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
-		return
-	}
-
-	w.Write(buf.Bytes())
-	return
+	renderJSON(w, fishes)
 }
 
 func GetFishById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var fish model.Fish
-	var buf bytes.Buffer
 
 	rgx := regexp.MustCompile(`^/fishes/([0-9]+)$`)
 	paths := rgx.FindStringSubmatch(r.URL.Path)
@@ -57,19 +44,19 @@ func GetFishById(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	renderJSON(w, fish)
+}
 
+func renderJSON(w http.ResponseWriter, context interface{}) {
+	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(fish); err != nil {
+	if err := enc.Encode(context); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(buf.Bytes())
 	return
 }
