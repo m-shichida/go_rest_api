@@ -10,16 +10,9 @@ import (
 	"strconv"
 )
 
-// 全てのメソッドはもうJSONで返すのでヘッダのセットとかはもう関数でラップして各関数で設定しないようにしたみ
-// GET 以外では return する、みたいな関数もあっても良い
-
 func GetFishes(w http.ResponseWriter, r *http.Request) {
-	var fish model.Fish
-	if r.Method != "GET" {
-		return
-	}
-
 	w.Header().Set("Content-Type", "application/json")
+	var fish model.Fish
 
 	fishes, err := fish.Index()
 	if err != nil {
@@ -41,10 +34,6 @@ func GetFishes(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetFishById(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		return
-	}
-
 	w.Header().Set("Content-Type", "application/json")
 	var fish model.Fish
 	var buf bytes.Buffer

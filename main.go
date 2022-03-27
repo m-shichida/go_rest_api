@@ -3,6 +3,7 @@ package main
 import (
 	"go_rest_api/handler"
 	"go_rest_api/model"
+	"log"
 	"net/http"
 	"os"
 
@@ -16,8 +17,23 @@ func main() {
 		Addr: address,
 	}
 
-	http.HandleFunc("/fishes", handler.GetFishes)
-	http.HandleFunc("/fishes/", handler.GetFishById)
+	http.HandleFunc("/fishes", get(handler.GetFishes))
+	http.HandleFunc("/fishes/", get(handler.GetFishById))
 
 	server.ListenAndServe()
 }
+
+// そして GET 関数の内部でJSON処理を書く
+
+func get(h http.HandlerFunc) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			return
+		}
+
+		log.Printf("called %s", r.URL.Path)
+		h(w, r)
+	}
+}
+
+func renderJSON() {}
