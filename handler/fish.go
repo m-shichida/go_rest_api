@@ -8,7 +8,29 @@ import (
 	"strconv"
 )
 
-func GetFishes(w http.ResponseWriter, r *http.Request) {
+func FishesHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		fetchFishes(w)
+	case http.MethodPost:
+		createFish(w, r)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+}
+
+func FishHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		fetchFish(w, r)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+}
+
+func fetchFishes(w http.ResponseWriter) {
 	var fish model.Fish
 
 	fishes, err := fish.Index()
@@ -20,7 +42,7 @@ func GetFishes(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, fishes)
 }
 
-func GetFishById(w http.ResponseWriter, r *http.Request) {
+func fetchFish(w http.ResponseWriter, r *http.Request) {
 	var fish model.Fish
 
 	rgx := regexp.MustCompile(`^/fishes/([0-9]+)$`)
@@ -44,3 +66,5 @@ func GetFishById(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(w, fish)
 }
+
+func createFish(w http.ResponseWriter, r *http.Request) {}

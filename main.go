@@ -3,7 +3,6 @@ package main
 import (
 	"go_rest_api/handler"
 	"go_rest_api/model"
-	"log"
 	"net/http"
 	"os"
 
@@ -17,19 +16,8 @@ func main() {
 		Addr: address,
 	}
 
-	http.HandleFunc("/fishes", get(handler.GetFishes))
-	http.HandleFunc("/fishes/", get(handler.GetFishById)) // /fishes/:id
+	http.HandleFunc("/fishes", handler.FishesHandler)
+	http.HandleFunc("/fishes/", handler.FishHandler) // /fishes/:id
 
 	server.ListenAndServe()
-}
-
-func get(h http.HandlerFunc) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			return
-		}
-
-		log.Printf("GET: %s", r.URL)
-		h(w, r)
-	}
 }
