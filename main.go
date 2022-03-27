@@ -18,14 +18,14 @@ func main() {
 	}
 
 	http.HandleFunc("/fishes", get(handler.GetFishes))
-	http.HandleFunc("/fishes/", get(handler.GetFishById))
+	http.HandleFunc("/fishes/", get(handler.GetFishById)) // /fishes/:id
 
 	server.ListenAndServe()
 }
 
 func get(h http.HandlerFunc) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" {
+		if r.Method != http.MethodGet {
 			return
 		}
 

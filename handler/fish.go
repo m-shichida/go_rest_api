@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"bytes"
-	"encoding/json"
 	"go_rest_api/model"
 	"log"
 	"net/http"
@@ -45,18 +43,4 @@ func GetFishById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	renderJSON(w, fish)
-}
-
-func renderJSON(w http.ResponseWriter, context interface{}) {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(context); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(buf.Bytes())
-	return
 }
