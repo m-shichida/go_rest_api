@@ -13,8 +13,17 @@ type Fish struct {
 }
 
 func (fish *Fish) Validate() (messages []string) {
+	var name string
 	if fish.Name == "" {
 		message := "名前を入力してください"
+		messages = append(messages, message)
+
+		return
+	}
+
+	err := Db.QueryRow("SELECT name FROM fishes WHERE name = ?", fish.Name).Scan(&name)
+	if err == nil {
+		message := "すでにその名前は使用されています"
 		messages = append(messages, message)
 	}
 
