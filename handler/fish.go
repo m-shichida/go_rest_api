@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"go_rest_api/model"
 	"log"
 	"net/http"
@@ -39,7 +40,7 @@ func fetchFishes(w http.ResponseWriter) {
 		log.Fatal(err)
 		return
 	}
-	renderJSON(w, fishes)
+	renderJSON(w, fishes, http.StatusOK)
 }
 
 func fetchFish(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +65,31 @@ func fetchFish(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	renderJSON(w, fish)
+	renderJSON(w, fish, http.StatusOK)
 }
 
-func createFish(w http.ResponseWriter, r *http.Request) {}
+func createFish(w http.ResponseWriter, r *http.Request) {
+	var fish model.Fish
+	var validationMessages ValidationMessages
+	body := make([]byte, r.ContentLength)
+	r.Body.Read(body)
+	defer r.Body.Close()
+	json.Unmarshal(body, &fish)
+
+	messages := fish.Validate()
+	if messages != nil {
+		validationMessages.Messages = messages
+
+		renderJSON(w, validationMessages, http.StatusBadRequest)
+		return
+	}
+
+	err := fish.Create()
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	renderJSON(w, fish, http.StatusOK)
+	return
+}

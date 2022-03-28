@@ -7,7 +7,11 @@ import (
 	"net/http"
 )
 
-func renderJSON(w http.ResponseWriter, context interface{}) {
+type ValidationMessages struct {
+	Messages []string
+}
+
+func renderJSON(w http.ResponseWriter, context interface{}, statusCode int) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	if err := enc.Encode(context); err != nil {
@@ -17,6 +21,7 @@ func renderJSON(w http.ResponseWriter, context interface{}) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
 	w.Write(buf.Bytes())
 	return
 }
