@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -12,9 +11,8 @@ type ValidationMessages struct {
 }
 
 func renderJSON(w http.ResponseWriter, context interface{}, statusCode int) {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(context); err != nil {
+	json, err := json.Marshal(context)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
 		return
@@ -22,6 +20,6 @@ func renderJSON(w http.ResponseWriter, context interface{}, statusCode int) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	w.Write(buf.Bytes())
+	w.Write(json)
 	return
 }
