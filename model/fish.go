@@ -62,3 +62,13 @@ func (fish *Fish) Create() (err error) {
 	err = Db.QueryRow("SELECT id, created_at, updated_at FROM fishes WHERE name = ?", fish.Name).Scan(&fish.Id, &fish.CreatedAt, &fish.UpdatedAt)
 	return
 }
+
+func (fish *Fish) Update() (err error) {
+	statement, err := Db.Prepare("UPDATE fishes SET name = ? WHERE id = ?")
+	if err != nil {
+		return
+	}
+	statement.Exec(fish.Name, fish.Id)
+	err = Db.QueryRow("SELECT updated_at FROM fishes WHERE id = ?", fish.Id).Scan(&fish.UpdatedAt)
+	return
+}
