@@ -42,6 +42,8 @@ func FishHandler(w http.ResponseWriter, r *http.Request) {
 		fetchFish(w, id)
 	case http.MethodPatch:
 		updateFish(w, r, id)
+	case http.MethodDelete:
+		deleteFish(w, id)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -128,5 +130,24 @@ func updateFish(w http.ResponseWriter, r *http.Request, id int) {
 		return
 	}
 	renderJSON(w, fish, http.StatusOK)
+	return
+}
+
+func deleteFish(w http.ResponseWriter, id int) {
+	var fish model.Fish
+	fish.GetById(id)
+	if fish.Id == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	err := fish.Delete()
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return
 }

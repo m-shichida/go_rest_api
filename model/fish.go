@@ -72,3 +72,12 @@ func (fish *Fish) Update() (err error) {
 	err = Db.QueryRow("SELECT updated_at FROM fishes WHERE id = ?", fish.Id).Scan(&fish.UpdatedAt)
 	return
 }
+
+func (fish *Fish) Delete() (err error) {
+	statement, err := Db.Prepare("DELETE FROM fishes WHERE id = ?")
+	if err != nil {
+		return
+	}
+	statement.Exec(fish.Id)
+	return
+}
