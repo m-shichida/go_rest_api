@@ -1,0 +1,47 @@
+consumes:
+- application/json
+info:
+  description: Goの標準パッケージのみでREST APIを作ってみる
+  title: Go REST API
+  version: 0.5.0
+paths: {}
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
+---
+definitions:
+  fish:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      name:
+        type: string
+        minLength: 50
+      created_at:
+        type: string
+        format: date-time
+        readOnly: true
+      updated_at:
+        type: string
+        format: date-time
+        readOnly: true
+---
+paths:
+  /fishes:
+    get:
+      tags:
+        - fishes
+      responses:
+        200:
+          description: 魚の一覧を返す
+          schema:
+            type: array
+            fishes:
+              $ref: "#/definitions/fish"
