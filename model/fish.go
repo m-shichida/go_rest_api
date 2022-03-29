@@ -21,6 +21,13 @@ func (fish *Fish) Validate() (messages []string) {
 		return
 	}
 
+	if fish.Name != "" && len(fish.Name) > 50 {
+		message := "名前は50文字以下で入力してください"
+		messages = append(messages, message)
+
+		return
+	}
+
 	err := Db.QueryRow("SELECT name FROM fishes WHERE name = ?", fish.Name).Scan(&name)
 	if err == nil {
 		message := "すでにその名前は使用されています"
