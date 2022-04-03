@@ -32,25 +32,3 @@ func (fakeFish *FakeFish) Validate() (messages []string) {
 	}
 	return
 }
-
-func (fakeFish *FakeFish) GetById(int) (fish Fish, err error) {
-	fish = Fish{
-		Id: 1,
-		Name: "アジ",
-		CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
-		UpdatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
-	}
-	return
-}
-
-func (fakeFish *FakeFish) Create() (err error) {
-	return
-}
-
-func (fakeFish *FakeFish) Update() (err error) {
-	return
-}
-
-func (fakeFish *FakeFish) Delete() (err error) {
-	return
-}
