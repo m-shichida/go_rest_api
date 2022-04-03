@@ -17,8 +17,8 @@ func main() {
 		Addr: address,
 	}
 
-	http.HandleFunc("/fishes", handler.FishesHandler(repository.FishRepository{&db}))
-	http.HandleFunc("/fishes/", handler.FishHandler) // /fishes/:id
+	http.HandleFunc("/fishes", handler.FishesHandler(&repository.FishRepository{Db: db}))
+	http.HandleFunc("/fishes/", handler.FishHandler(&repository.FishRepository{Db: db})) // /fishes/:id
 
 	server.ListenAndServe()
 }

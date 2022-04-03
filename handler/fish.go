@@ -39,32 +39,41 @@ func FishesHandler(t FishText) http.HandlerFunc {
 	}
 }
 
-func FishHandler(w http.ResponseWriter, r *http.Request) {
-	rgx := regexp.MustCompile(`^/fishes/([0-9]+)$`)
-	paths := rgx.FindStringSubmatch(r.URL.Path)
-	// /fishes/:id だと [/fishes/:id, :id] として取得できる
-	if len(paths) != 2 {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+func FishHandler(t FishText) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
 
-	id, err := strconv.Atoi(paths[1])
-	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+		rgx := regexp.MustCompile(`^/fishes/([0-9]+)$`)
+		paths := rgx.FindStringSubmatch(r.URL.Path)
+		// /fishes/:id だと [/fishes/:id, :id] として取得できる
+		if len(paths) != 2 {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 
-	switch r.Method {
-	case http.MethodGet:
-		fetchFish(w, id)
-	case http.MethodPatch:
-		updateFish(w, r, id)
-	case http.MethodDelete:
-		deleteFish(w, id)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		return
+		id, err := strconv.Atoi(paths[1])
+		if err != nil {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			err = fetchFish(w, id, t)
+		case http.MethodPatch:
+			err = updateFish(w, r, id, t)
+		case http.MethodDelete:
+			err = deleteFish(w, id, t)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal(err)
+			return
+		}
 	}
 }
 
@@ -78,14 +87,17 @@ func fetchFishes(w http.ResponseWriter, t FishText) (err error) {
 	return
 }
 
-func fetchFish(w http.ResponseWriter, id int) {
-	var fish model.Fish
+func fetchFish(w http.ResponseWriter, id int, t FishText) (err error) {
+	fish, err := t.FetchFishById(id)
+	if err != nil {
+		return
+	}
 
-	fish.GetById(id)
 	if fish.Id == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	renderJSON(w, fish, http.StatusOK)
 	return
 }
@@ -114,10 +126,13 @@ func createFish(w http.ResponseWriter, r *http.Request, t FishText) (err error) 
 	return
 }
 
-func updateFish(w http.ResponseWriter, r *http.Request, id int) {
-  var fish model.Fish
+func updateFish(w http.ResponseWriter, r *http.Request, id int, t FishText) (err error) {
 	var validationMessages ValidationMessages
-	fish.GetById(id)
+	fish, err := t.FetchFishById(id)
+	if err != nil {
+		return
+	}
+
 	if fish.Id == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -136,28 +151,28 @@ func updateFish(w http.ResponseWriter, r *http.Request, id int) {
 		return
 	}
 
-	err := fish.Update()
+	err = t.Update(&fish)
 	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	renderJSON(w, fish, http.StatusOK)
 	return
 }
 
-func deleteFish(w http.ResponseWriter, id int) {
-	var fish model.Fish
-	fish.GetById(id)
+func deleteFish(w http.ResponseWriter, id int, t FishText) (err error) {
+	fish, err := t.FetchFishById(id)
+	if err != nil {
+		return
+	}
+
 	if fish.Id == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	err := fish.Delete()
+	err = t.Delete(fish.Id)
 	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
