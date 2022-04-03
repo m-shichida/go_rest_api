@@ -1,4 +1,4 @@
-package model
+package utils
 
 import (
 	"database/sql"
@@ -6,13 +6,11 @@ import (
 	"os"
 )
 
-var Db *sql.DB
-var err error
-
-func DatabaseInit() {
+func DatabaseInit() (db *sql.DB) {
 	dsn := os.Getenv("DSN")
-	Db, err = sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Println("db connection failed")
 	}
+	return
 }

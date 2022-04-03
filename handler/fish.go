@@ -9,15 +9,33 @@ import (
 	"strconv"
 )
 
-func FishesHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		fetchFishes(w)
-	case http.MethodPost:
-		createFish(w, r)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		return
+type FishText interface {
+	Index() ([]model.Fish, error)
+	FetchFishById(int) (model.Fish, error)
+	FetchFishByName(string) (model.Fish, error)
+	Create(*model.Fish) (error)
+	Update(*model.Fish) (error)
+	Delete(int) (error)
+}
+
+func FishesHandler(t FishText) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
+
+		switch r.Method {
+		case http.MethodGet:
+			err = fetchFishes(w, t)
+		case http.MethodPost:
+			err = createFish(w, r, t)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Fatal(err)
+			return
+		}
 	}
 }
 
@@ -50,15 +68,12 @@ func FishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fetchFishes(w http.ResponseWriter) {
-	var fish model.Fish
-
-	fishes, err := fish.Index()
+func fetchFishes(w http.ResponseWriter, t FishText) (err error) {
+	fishes, err := t.Index()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
 		return
 	}
+
 	renderJSON(w, fishes, http.StatusOK)
 	return
 }
@@ -75,7 +90,7 @@ func fetchFish(w http.ResponseWriter, id int) {
 	return
 }
 
-func createFish(w http.ResponseWriter, r *http.Request) {
+func createFish(w http.ResponseWriter, r *http.Request, t FishText) (err error) {
 	var fish model.Fish
 	var validationMessages ValidationMessages
 	body := make([]byte, r.ContentLength)
@@ -91,10 +106,8 @@ func createFish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := fish.Create()
+	err = t.Create(&fish)
 	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	renderJSON(w, fish, http.StatusOK)

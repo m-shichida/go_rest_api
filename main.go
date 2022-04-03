@@ -2,7 +2,8 @@ package main
 
 import (
 	"go_rest_api/handler"
-	"go_rest_api/model"
+	"go_rest_api/repository"
+	"go_rest_api/utils"
 	"net/http"
 	"os"
 
@@ -11,12 +12,12 @@ import (
 
 func main() {
 	address := os.Getenv("ADDRESS")
-	model.DatabaseInit()
+	db := utils.DatabaseInit()
 	server := http.Server {
 		Addr: address,
 	}
 
-	http.HandleFunc("/fishes", handler.FishesHandler)
+	http.HandleFunc("/fishes", handler.FishesHandler(repository.FishRepository{&db}))
 	http.HandleFunc("/fishes/", handler.FishHandler) // /fishes/:id
 
 	server.ListenAndServe()
