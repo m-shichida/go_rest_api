@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -30,6 +31,23 @@ func TestFishesHandler(t *testing.T) {
 		mux.ServeHTTP(writer, request)
 
 		expected := `[{"Id":1,"Name":"アジ","CreatedAt":"2022-04-01T00:00:00+09:00","UpdatedAt":"2022-04-01T00:00:00+09:00"},{"Id":2,"Name":"マダイ","CreatedAt":"2022-04-01T00:00:00+09:00","UpdatedAt":"2022-04-01T00:00:00+09:00"}]`
+		body, _ := ioutil.ReadAll(writer.Body)
+		actual := string(body)
+
+		if writer.Code != http.StatusOK {
+			t.Errorf("It's expected to return 200. But returns %d", writer.Code)
+		}
+		if expected != actual {
+			t.Errorf("Response body unmatched. returns %s", actual)
+		}
+	})
+
+	t.Run("POST /fishes", func(t *testing.T) {
+		requestBody := strings.NewReader(`{ "name": "アジ" }`)
+		request, _ := http.NewRequest(http.MethodPost, "/fishes", requestBody)
+		mux.ServeHTTP(writer, request)
+
+		expected := `{"Id":1,"Name":"アジ","CreatedAt":"2022-04-01T00:00:00+09:00","UpdatedAt":"2022-04-01T00:00:00+09:00"}`
 		body, _ := ioutil.ReadAll(writer.Body)
 		actual := string(body)
 

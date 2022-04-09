@@ -40,6 +40,10 @@ func (ffr *FakeFishRepository) FetchFishByName(name string) (fish model.Fish, er
 }
 
 func (ffr *FakeFishRepository) Create(fish *model.Fish) (err error) {
+	fish.Id = 1
+	fish.Name = "アジ"
+	fish.CreatedAt = time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local)
+	fish.UpdatedAt = time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local)
 	return
 }
 
