@@ -1,42 +1,43 @@
 package handler
 
 import (
-	"go_rest_api/model"
+	"go_rest_api/repository"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
-func TestFishesHandler(t *testing.T) {
-	res := httptest.NewRecorder()
+var mux *http.ServeMux
+var writer *httptest.ResponseRecorder
 
-	t.Run("fetchFishes", func(t *testing.T) {
-		httptest.NewRequest(http.MethodGet, "http://example.com/fishes", nil)
-		FishesHandler(&model.FakeFish{})
-		expected := `[{"id":1,"name":"アジ","created_at":"2022-04-01T00:00:17Z","updated_at":"2022-04-01T00:00:17Z"},{"id":2,"name":"マダイ","created_at":"2022-04-01T00:00:17Z","updated_at":"2022-04-01T00:00:17Z"}]`
-		body, _ := ioutil.ReadAll(res.Body)
+func TestMain(m *testing.M) {
+	setUp()
+	code := m.Run()
+	os.Exit(code)
+}
+
+func setUp() {
+	mux = http.NewServeMux()
+	mux.HandleFunc("/fishes", FishesHandler(&repository.FakeFishRepository{}))
+	writer = httptest.NewRecorder()
+}
+
+func TestFishesHandler(t *testing.T) {
+	t.Run("GET /fishes", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/fishes", nil)
+		mux.ServeHTTP(writer, request)
+
+		expected := `[{"Id":1,"Name":"アジ","CreatedAt":"2022-04-01T00:00:00+09:00","UpdatedAt":"2022-04-01T00:00:00+09:00"},{"Id":2,"Name":"マダイ","CreatedAt":"2022-04-01T00:00:00+09:00","UpdatedAt":"2022-04-01T00:00:00+09:00"}]`
+		body, _ := ioutil.ReadAll(writer.Body)
 		actual := string(body)
 
-		if res.Code != http.StatusOK {
-			t.Errorf("It's expected to return 200. But returns %d", res.Code)
+		if writer.Code != http.StatusOK {
+			t.Errorf("It's expected to return 200. But returns %d", writer.Code)
 		}
 		if expected != actual {
 			t.Errorf("Response body unmatched. returns %s", actual)
-		}
-	})
-
-	t.Run("createFish", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPost, "http://example.com/fishes", nil)
-		FishesHandler(res, req)
-	})
-
-	t.Run("HTTP method did't matched", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPatch, "http://example.com/fishes", nil)
-		FishesHandler(res, req)
-
-		if res.Code != http.StatusNotFound {
-			t.Errorf("It's expected to return 404. But returns %d", res.Code)
 		}
 	})
 }
