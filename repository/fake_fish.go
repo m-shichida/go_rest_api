@@ -26,8 +26,11 @@ func (ffr *FakeFishRepository) Index() (fishes []model.Fish, err error) {
 }
 
 func (ffr *FakeFishRepository) FetchFishById(id int) (fish model.Fish, err error) {
+	if id != 1 {
+		id = 0
+	}
 	fish = model.Fish{
-		Id: 1,
+		Id: id,
 		Name: "アジ",
 		CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
 		UpdatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
